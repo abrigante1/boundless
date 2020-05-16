@@ -1,15 +1,10 @@
 [package]
 name = "boundless"
 version = "0.1.0"
-authors = []
+authors = ["Anthony Brigante <anthonypbrigante@gmail.com>"]
 edition = "2018"
 
-[dependencies]
-amethyst = "0.15.0"
-simdnoise = "3.1.5"
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
-[features]
-default = ["vulkan"]
-empty = ["amethyst/empty"]
-metal = ["amethyst/metal"]
-vulkan = ["amethyst/vulkan"]
+[dependencies]
+ggez = "0.5"
