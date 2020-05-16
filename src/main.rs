@@ -43,10 +43,21 @@ pub struct TileSpritesheet {
 
 struct Game;
 
+impl Game {
+    fn run_systems(&mut self, world : &mut World) {
+        use amethyst::ecs::RunNow;
+
+        let mut input = systems::GodCameraSystem{};
+        input.run_now(&world);
+
+        world.maintain();
+    }
+}
+
 impl SimpleState for Game {
     fn on_start(&mut self, data: StateData<'_, GameData<'_, '_>>) {
 
-        let world = data.world;
+        let mut world = data.world;
 
         // Register Components
         world.register::<Tile>();
@@ -73,6 +84,14 @@ impl SimpleState for Game {
         };
 
         world_generator.create_world(world);
+    }
+
+    fn update(&mut self, data : &mut StateData<'_, GameData<'_, '_>>) -> SimpleTrans {
+        let world = &mut data.world;
+
+        self.run_systems(world);
+
+        Trans::None
     }
 
     fn handle_event(&mut self, data: StateData<'_, GameData<'_, '_>>, event: StateEvent) -> SimpleTrans {

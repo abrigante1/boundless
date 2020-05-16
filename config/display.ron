@@ -1,4 +1,4 @@
 (
   title: "Boundless",
-  dimensions: Some((1900, 1000)),
+  dimensions: Some((800, 800)),
 )
