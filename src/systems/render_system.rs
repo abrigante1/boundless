@@ -1,11 +1,10 @@
-use specs::{self, join, ReadStorage, System, World, WorldExt};
+use specs::{self, Join, World, WorldExt};
 use ggez::graphics;
 use ggez::nalgebra as math;
 
 use crate::components::{Transform, Sprite};
 
 type Point2 = math::Point2<f32>;
-type Vec2   = math::Vector2<f32>;
 
 pub struct RenderSystem {
     pub screen_size : Point2,
@@ -14,7 +13,6 @@ pub struct RenderSystem {
 impl RenderSystem {
     
     pub fn draw(&mut self, ctx : &mut ggez::Context, world: &mut World) {
-        use specs::Join;
 
         graphics::clear(ctx, [0.1, 0.2, 0.3, 1.0].into());
 
@@ -27,6 +25,7 @@ impl RenderSystem {
 
             let draw_params = graphics::DrawParam::new()
                 .dest(screen_pos)
+                .scale(transform.scale)
                 .offset(Point2::new(0.5, 0.5)); // Moves origin to center of image
 
             graphics::draw(ctx, &sprite.image, draw_params).expect("Failed to load Image!");

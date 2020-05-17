@@ -9,7 +9,7 @@ mod systems;
 mod components;
 
 type Point2 = math::Point2<f32>;
-type Vec2   = math::Vector2<f32>;
+type Vector2   = math::Vector2<f32>;
 
 struct State {
     world : World,
@@ -76,7 +76,10 @@ fn main() {
 
     // Create Dummy Awesome Face
     world.create_entity()
-        .with(components::Transform { position : Point2::new(0.0, 0.0), scale : Point2::new(1.0, 1.0) })
+        .with(components::Transform { 
+            position : Point2::new(0.0, 0.0), 
+            scale : Vector2::new(0.5, 0.5) 
+        })
         .with(components::Sprite { image : graphics::Image::new(ctx, "/awesome_face.png" ).unwrap() })
         .build();
 

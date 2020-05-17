@@ -1,5 +1,5 @@
-use specs::{WriteStorage, System, SystemData, Join};
-use crate::components::{Transform, Sprite};
+use specs::{WriteStorage, System, Join};
+use crate::components::{Transform};
 
 
 pub struct DemoSystem {}
@@ -15,8 +15,8 @@ impl<'s> System<'s> for DemoSystem {
             let pos_x = &mut transform.position.x;
 
             match *pos_x {
-                x if x <  250.0 => { *pos_x = x + 1.0; },
-                x if x >= 250.0 => { *pos_x = -250.0; }
+                x if x <  400.0 => { *pos_x = x + 2.0; },
+                x if x >= 400.0 => { *pos_x = -400.0; }
                 _ => {}
             }
         }

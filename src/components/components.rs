@@ -3,7 +3,7 @@ use specs::{Component, VecStorage};
 use ggez::graphics;
 
 type Point2 = ggez::nalgebra::Point2<f32>;
-type Vec2   = ggez::nalgebra::Vector2<f32>;
+type Vector2   = ggez::nalgebra::Vector2<f32>;
 
 
 #[derive(Component)]
@@ -16,5 +16,5 @@ pub struct Sprite {
 #[storage(VecStorage)]
 pub struct Transform {
     pub position : Point2,
-    pub scale    : Point2,
+    pub scale    : Vector2,
 }
