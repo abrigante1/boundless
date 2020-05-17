@@ -8,3 +8,5 @@ edition = "2018"
 
 [dependencies]
 ggez = "0.5"
+specs = "0.16.1"
+specs-derive = "0.4.1"
