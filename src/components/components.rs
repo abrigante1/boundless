@@ -18,3 +18,7 @@ pub struct Transform {
     pub position : Point2,
     pub scale    : Vector2,
 }
+
+#[derive(Component)]
+#[storage(VecStorage)]
+pub struct Camera {}

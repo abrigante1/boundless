@@ -1,5 +1,5 @@
-use specs::{WriteStorage, System, Join};
-use crate::components::{Transform};
+use specs::{WriteStorage, ReadStorage, System, Join};
+use crate::components::{Transform, Camera};
 
 
 pub struct DemoSystem {}
@@ -7,11 +7,13 @@ pub struct DemoSystem {}
 
 impl<'s> System<'s> for DemoSystem {
 
-    type SystemData = WriteStorage<'s, Transform>;
+    type SystemData = (WriteStorage<'s, Transform>,
+                       ReadStorage<'s,  Camera>);
 
-    fn run(&mut self, mut transforms : Self::SystemData) {
+    fn run(&mut self, (mut transforms, cameras) : Self::SystemData) {
 
-        for transform in (&mut transforms).join() {
+
+        for (transform, _) in (&mut transforms, !&cameras).join() {
             let pos_x = &mut transform.position.x;
 
             match *pos_x {

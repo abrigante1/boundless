@@ -13,17 +13,14 @@ type Vector2   = math::Vector2<f32>;
 
 struct State {
     world : World,
-    render_system : systems::RenderSystem,
 }   
 
 impl State {
-    fn new( world : World, ctx : &mut Context ) -> GameResult<State> {
+    fn new( world : World ) -> GameResult<State> {
 
-        let (w, h) = graphics::drawable_size(ctx);
         
         let state = State {
             world,
-            render_system : systems::RenderSystem { screen_size : Point2::new(w, h) },
         };
 
         Ok(state)
@@ -43,7 +40,9 @@ impl event::EventHandler for State {
 
     fn draw(&mut self, ctx : &mut Context) -> GameResult<()> {
 
-        self.render_system.draw(ctx, &mut self.world);
+
+        let mut render_system = systems::RenderSystem{};
+        render_system.draw(ctx, &self.world);
 
         Ok(())
     }
@@ -64,7 +63,7 @@ fn main() {
     // Create the ggez Context
     let context_builder = ggez::ContextBuilder::new("Sandbox for ggez", "Anthony Brigante")
         .window_setup(conf::WindowSetup::default().title("Sandbox!"))
-        .window_mode(conf::WindowMode::default().dimensions(500.0, 500.0))
+        //.window_mode(conf::WindowMode::default().dimensions(500.0, 500.0))
         .add_resource_path(resource_dir);
 
     let (ctx, event_loop) = &mut context_builder.build().unwrap();
@@ -73,6 +72,7 @@ fn main() {
     let mut world = World::new();
     world.register::<components::Transform>();
     world.register::<components::Sprite>();
+    world.register::<components::Camera>();
 
     // Create Dummy Awesome Face
     world.create_entity()
@@ -83,7 +83,20 @@ fn main() {
         .with(components::Sprite { image : graphics::Image::new(ctx, "/awesome_face.png" ).unwrap() })
         .build();
 
-    let state = &mut State::new(world, ctx).unwrap();
 
+    // Create Camera at Origin
+    let camera = world.create_entity()
+        .with(components::Transform {
+            position : Point2::new(250.0, 0.0),
+            scale    : Vector2::new(100.0, 100.0),
+        })
+        .with(components::Camera {})
+        .build();
+
+    // Create Resources
+    let active_camera = systems::ActiveCamera{ entity: Some(camera) };
+    world.insert(active_camera);
+
+    let state = &mut State::new(world).unwrap();
     event::run(ctx, event_loop, state).unwrap();
 }
