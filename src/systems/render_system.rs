@@ -25,7 +25,7 @@ pub struct RenderSystem {
 
 impl RenderSystem {
     
-    pub fn draw(&mut self, ctx : &mut ggez::Context, world: &World) {
+     pub fn draw(&mut self, ctx : &mut ggez::Context, world: &World) {
 
         graphics::clear(ctx, [0.1, 0.2, 0.3, 1.0].into());
 
@@ -38,9 +38,10 @@ impl RenderSystem {
         let active_camera    = world.read_resource::<ActiveCamera>();
         let camera_transform = transforms.get(active_camera.entity.unwrap()).unwrap();
 
+
         for (transform, sprite) in (&transforms, &sprites).join() {
 
-            let screen_pos = self.world_to_screen_coords(Point2::new(w, h), camera_transform.position, transform.position);
+            let screen_pos = self.world_to_screen_coords(Point2::new(w, h), camera_transform, transform.position);
 
             let draw_params = graphics::DrawParam::new()
                 .dest(screen_pos)
@@ -54,11 +55,12 @@ impl RenderSystem {
     }
     
     
-    fn world_to_screen_coords(&mut self, screen_size : Point2, camera_transform : Point2, point : Point2) -> Point2 {
+    fn world_to_screen_coords(&mut self, screen_size : Point2, camera_transform : &Transform , point : Point2) -> Point2 {
+
 
         // Construct Matrixes
-        let world2camera = Matrix3::new(1.0, 0.0, -camera_transform.x, 
-                                        0.0, 1.0, -camera_transform.y,
+        let world2camera = Matrix3::new(1.0, 0.0, -camera_transform.position.x, 
+                                        0.0, 1.0, -camera_transform.position.y,
                                         0.0, 1.0,  1.0);
 
         let camera2screen = Matrix3::new(1.0, 0.0, (screen_size.x / 2.0), 
