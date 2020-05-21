@@ -6,8 +6,9 @@ use math::{Matrix3};
 
 use crate::components::{Transform, Sprite};
 
-type Point2 = math::Point2<f32>;
-type Point3 = math::Point3<f32>;
+type Point2  = math::Point2<f32>;
+type Point3  = math::Point3<f32>;
+type Vector2 = math::Vector2<f32>;
 
 
 pub struct ScreenDimensions {
@@ -45,7 +46,7 @@ impl RenderSystem {
 
             let draw_params = graphics::DrawParam::new()
                 .dest(screen_pos)
-                .scale(transform.scale)
+                .scale(Vector2::new(transform.scale.x * camera_transform.scale.x, transform.scale.y * camera_transform.scale.y))
                 .offset(Point2::new(0.5, 0.5)); // Moves origin to center of image
 
             graphics::draw(ctx, &sprite.image, draw_params).expect("Failed to load Image!");

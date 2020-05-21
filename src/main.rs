@@ -113,13 +113,19 @@ impl event::EventHandler for State {
             transforms.get_mut(camera_entity).unwrap()
         };
 
-        transform.scale.x += (y / 100.0);
-        transform.scale.y += (y / 100.0);
+        let delta = y / 10.0;
+
+        transform.scale.x += delta;
+        if transform.scale.x < 0.1 {
+            transform.scale.x = 0.1;
+        }
+        
+        transform.scale.y += delta;
+        if transform.scale.y < 0.1 {
+            transform.scale.y = 0.1;
+        }
 
         
-        let (w, h) = graphics::drawable_size(ctx);
-        let new_rect = graphics::Rect::new(0.0, 0.0, w as f32 * transform.scale.x, h as f32 * transform.scale.y);
-        graphics::set_screen_coordinates(ctx, new_rect).unwrap();
     }
 
 }
