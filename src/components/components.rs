@@ -1,9 +1,7 @@
 use specs_derive::*;
 use specs::{Component, VecStorage};
 use ggez::graphics;
-
-type Point2 = ggez::nalgebra::Point2<f32>;
-type Vector2   = ggez::nalgebra::Vector2<f32>;
+use crate::alias::*;
 
 
 #[derive(Component)]

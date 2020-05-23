@@ -8,14 +8,20 @@ use std::env;
 
 mod systems;
 mod components;
-
-type Point2 = math::Point2<f32>;
-type Vector2   = math::Vector2<f32>;
+mod alias;
+pub use alias::*;
 
 struct InputHandler {
     pos_x : f32,
     pos_y : f32,
     mouse_down : bool,
+}
+
+struct AssetHandler {
+    player           : graphics::Image,
+    dirt_tile        : graphics::Image, 
+    grassy_dirt_tile : graphics::Image, 
+    background       : graphics::Image,
 }
 
 struct State {
@@ -25,7 +31,13 @@ struct State {
 impl State {
     fn new( world : World ) -> GameResult<State> {
 
-        
+        let mut world_gen_system = systems::WorldGenSystem { 
+            world_width : 32 * 7,
+            world_height : 32 * 7,
+        };
+
+        world_gen_system.run_now(&world);
+
         let state = State {
             world,
         };
@@ -39,9 +51,9 @@ impl event::EventHandler for State {
 
     fn update(&mut self, _ctx : &mut Context) -> GameResult<()> {
 
-        //let mut demo_system = systems::DemoSystem {};
-       // demo_system.run_now(&self.world);
-
+       //let mut demo_system = systems::DemoSystem {};
+       //demo_system.run_now(&self.world);
+        self.world.maintain();
         Ok(())
     }
 
@@ -95,7 +107,7 @@ impl event::EventHandler for State {
                 input_handler.pos_y = y;
 
                 transform.position.x = transform.position.x - xrel;
-                transform.position.y = transform.position.y - yrel;
+                transform.position.y = transform.position.y + yrel;
 
             }
 
@@ -115,19 +127,29 @@ impl event::EventHandler for State {
 
         let delta = y / 10.0;
 
-        transform.scale.x += delta;
+        transform.scale.x += -delta;
         if transform.scale.x < 0.1 {
             transform.scale.x = 0.1;
         }
         
-        transform.scale.y += delta;
+        transform.scale.y += -delta;
         if transform.scale.y < 0.1 {
             transform.scale.y = 0.1;
         }
 
-        
+        println!("Zoom: ({}, {})", transform.scale.x, transform.scale.y);
     }
 
+    fn resize_event(&mut self, ctx: &mut Context, width: f32, height: f32) {
+        println!("Resized screen to {}, {}", width, height);
+        let new_rect = graphics::Rect::new(
+            0.0,
+            0.0,
+            width as f32,
+            height as f32,
+        );
+        graphics::set_screen_coordinates(ctx, new_rect).unwrap();
+    }
 }
 
 fn main() {
@@ -143,43 +165,93 @@ fn main() {
 
     // Create the ggez Context
     let context_builder = ggez::ContextBuilder::new("Sandbox for ggez", "Anthony Brigante")
-        .window_setup(conf::WindowSetup::default().title("Sandbox!"))
+        .window_setup(conf::WindowSetup::default().title("Sandbox!").samples(ggez::conf::NumSamples::One))
+        .window_mode(
+            conf::WindowMode::default()
+                .fullscreen_type(conf::FullscreenType::Windowed)
+                .resizable(true),
+        )
         //.window_mode(conf::WindowMode::default().dimensions(500.0, 500.0))
         .add_resource_path(resource_dir);
 
     let (ctx, event_loop) = &mut context_builder.build().unwrap();
+    graphics::set_default_filter(ctx, graphics::FilterMode::Nearest);
+
 
     // Create the World and Register Components
     let mut world = World::new();
     world.register::<components::Transform>();
     world.register::<components::Sprite>();
     world.register::<components::Camera>();
-
-    // Create Dummy Awesome Face
-    world.create_entity()
-        .with(components::Transform { 
-            position : Point2::new(0.0, 0.0), 
-            scale : Vector2::new(0.5, 0.5) 
-        })
-        .with(components::Sprite { image : graphics::Image::new(ctx, "/awesome_face.png" ).unwrap() })
-        .build();
-
+    world.register::<components::Tile>();
+    world.register::<components::Dirt>();
+    world.register::<components::GrassyDirt>();
 
     // Create Camera at Origin
+    let player_pos = Point2::new(-32.0 * 5.0, 32.0 * 16.5);
     let camera = world.create_entity()
-        .with(components::Transform {
-            position : Point2::new(250.0, 0.0),
-            scale    : Vector2::new(1.0, 1.0),
-        })
-        .with(components::Camera {})
-        .build();
+    .with(components::Transform {
+        position : player_pos,
+        scale    : Vector2::new(0.8, 0.8),
+    })
+    .with(components::Camera {})
+    .build();
 
     // Create Resources
     let active_camera = systems::ActiveCamera{ entity: Some(camera) };
     world.insert(active_camera);
+    
     let input_handler = InputHandler { pos_x : 0.0, pos_y : 0.0, mouse_down : false };
     world.insert(input_handler);
 
+    let asset_handler = register_assets(ctx);
+
+    world.insert(asset_handler);
+    
+    create_background(&mut world, player_pos);
+    create_player(&mut world, player_pos);
+
+
+
     let state = &mut State::new(world).unwrap();
     event::run(ctx, event_loop, state).unwrap();
+}
+
+fn create_player(world : &mut World, position : Point2) {
+    let asset_handler = world.write_resource::<crate::AssetHandler>();
+    
+    world.create_entity_unchecked()
+        .with(components::Transform { 
+            position,
+            scale : Vector2::new(1.0, 1.0) 
+        })
+        .with(components::Sprite { image :    {
+                asset_handler.player.clone() 
+            }
+        })
+        .build();
+}
+
+fn create_background(world : &mut World, position : Point2) {
+    let asset_handler = world.write_resource::<crate::AssetHandler>();
+    
+    world.create_entity_unchecked()
+        .with(components::Transform {
+            position : position, 
+            scale : Vector2::new(1.5, 1.5),
+        })
+        .with(components::Sprite { image :    {
+            asset_handler.background.clone() 
+        }
+    })
+    .build();
+}
+
+fn register_assets(ctx : &mut Context) -> AssetHandler {
+    AssetHandler {
+        player   : graphics::Image::new(ctx, "/Player.png" ).unwrap(),
+        dirt_tile : graphics::Image::new(ctx, "/DirtBlock.png" ).unwrap(),
+        grassy_dirt_tile : graphics::Image::new(ctx, "/GrassyDirtBlock.png").unwrap(),
+        background : graphics::Image::new(ctx, "/background.png").unwrap(),
+    }
 }

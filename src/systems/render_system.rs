@@ -5,10 +5,9 @@ use ggez::nalgebra as math;
 use math::{Matrix3};
 
 use crate::components::{Transform, Sprite};
+use crate::alias::*;
 
-type Point2  = math::Point2<f32>;
-type Point3  = math::Point3<f32>;
-type Vector2 = math::Vector2<f32>;
+
 
 
 pub struct ScreenDimensions {
@@ -39,15 +38,14 @@ impl RenderSystem {
         let active_camera    = world.read_resource::<ActiveCamera>();
         let camera_transform = transforms.get(active_camera.entity.unwrap()).unwrap();
 
-
         for (transform, sprite) in (&transforms, &sprites).join() {
 
             let screen_pos = self.world_to_screen_coords(Point2::new(w, h), camera_transform, transform.position);
 
             let draw_params = graphics::DrawParam::new()
-                .dest(screen_pos)
-                .scale(Vector2::new(transform.scale.x * camera_transform.scale.x, transform.scale.y * camera_transform.scale.y))
-                .offset(Point2::new(0.5, 0.5)); // Moves origin to center of image
+                .offset(Point2::new(0.5, 0.5)) // Moves origin to center of image
+                .scale(Vector2::new(transform.scale.x * (1.0/camera_transform.scale.x), transform.scale.y * (1.0/camera_transform.scale.y)))
+                .dest(screen_pos);
 
             graphics::draw(ctx, &sprite.image, draw_params).expect("Failed to load Image!");
         }
@@ -58,17 +56,23 @@ impl RenderSystem {
     
     fn world_to_screen_coords(&mut self, screen_size : Point2, camera_transform : &Transform , point : Point2) -> Point2 {
 
+        let width_scalar  = screen_size.x / (screen_size.x * camera_transform.scale.x);
+        let height_scalar = screen_size.y / (screen_size.y * camera_transform.scale.y); 
 
         // Construct Matrixes
-        let world2camera = Matrix3::new(1.0, 0.0, -camera_transform.position.x, 
-                                        0.0, 1.0, -camera_transform.position.y,
-                                        0.0, 1.0,  1.0);
+        let world2camera = Matrix3::new(width_scalar, 0.0, -camera_transform.position.x, 
+                                        0.0, -height_scalar, camera_transform.position.y,
+                                        0.0, 0.0,  1.0);
 
         let camera2screen = Matrix3::new(1.0, 0.0, (screen_size.x / 2.0), 
                                          0.0, 1.0, (screen_size.y / 2.0),
-                                         0.0, 1.0,  1.0);
+                                         0.0, 0.0,  1.0);
 
-        let pos = world2camera * camera2screen * Point3::new(point.x, point.y, 1.0);
+                                
+
+
+        let dude = Point3::new(point.x, point.y, 1.0);
+        let pos = camera2screen * world2camera * dude;
 
         Point2::new(pos.x, pos.y)
     }
