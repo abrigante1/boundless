@@ -18,10 +18,10 @@ struct InputHandler {
 }
 
 struct AssetHandler {
-    player           : graphics::Image,
-    dirt_tile        : graphics::Image, 
-    grassy_dirt_tile : graphics::Image, 
-    background       : graphics::Image,
+    player                 : graphics::Image,
+    dirt_tile_batch        : graphics::spritebatch::SpriteBatch,
+    grassy_dirt_tile_batch : graphics::spritebatch::SpriteBatch,
+    background             : graphics::Image,
 }
 
 struct State {
@@ -32,8 +32,8 @@ impl State {
     fn new( world : World ) -> GameResult<State> {
 
         let mut world_gen_system = systems::WorldGenSystem { 
-            world_width : 32 * 7,
-            world_height : 32 * 7,
+            world_width : 32 * 5,
+            world_height : 32 * 2,
         };
 
         world_gen_system.run_now(&world);
@@ -59,9 +59,12 @@ impl event::EventHandler for State {
 
     fn draw(&mut self, ctx : &mut Context) -> GameResult<()> {
 
+        let mut physics_system = systems::PhysicsSystem{};
+        physics_system.run_now(&mut self.world);
 
         let mut render_system = systems::RenderSystem{};
         render_system.draw(ctx, &self.world);
+
 
         Ok(())
     }
@@ -140,7 +143,7 @@ impl event::EventHandler for State {
         println!("Zoom: ({}, {})", transform.scale.x, transform.scale.y);
     }
 
-    fn resize_event(&mut self, ctx: &mut Context, width: f32, height: f32) {
+     fn resize_event(&mut self, ctx: &mut Context, width: f32, height: f32) {
         println!("Resized screen to {}, {}", width, height);
         let new_rect = graphics::Rect::new(
             0.0,
@@ -149,7 +152,11 @@ impl event::EventHandler for State {
             height as f32,
         );
         graphics::set_screen_coordinates(ctx, new_rect).unwrap();
-    }
+
+        let mut screen_size = self.world.write_resource::<systems::ScreenDimensions>();
+        screen_size.x = width;
+        screen_size.y = height;
+    } 
 }
 
 fn main() {
@@ -186,13 +193,14 @@ fn main() {
     world.register::<components::Tile>();
     world.register::<components::Dirt>();
     world.register::<components::GrassyDirt>();
+    world.register::<components::Culled>();
 
     // Create Camera at Origin
-    let player_pos = Point2::new(-32.0 * 5.0, 32.0 * 16.5);
+    let player_pos = Point2::new(-32.0 * 5.0, 32.0 * 7.0);
     let camera = world.create_entity()
     .with(components::Transform {
         position : player_pos,
-        scale    : Vector2::new(0.8, 0.8),
+        scale    : Vector2::new(1.0, 1.0),
     })
     .with(components::Camera {})
     .build();
@@ -207,11 +215,11 @@ fn main() {
     let asset_handler = register_assets(ctx);
 
     world.insert(asset_handler);
+
+    world.insert(systems::ScreenDimensions { x: 0.0, y: 0.0 });
     
     create_background(&mut world, player_pos);
     create_player(&mut world, player_pos);
-
-
 
     let state = &mut State::new(world).unwrap();
     event::run(ctx, event_loop, state).unwrap();
@@ -248,10 +256,19 @@ fn create_background(world : &mut World, position : Point2) {
 }
 
 fn register_assets(ctx : &mut Context) -> AssetHandler {
+
+    let dirt_tile = graphics::Image::new(ctx, "/DirtBlock.png" ).unwrap();
+    let grassy_dirt_tile = graphics::Image::new(ctx, "/GrassyDirtBlock.png" ).unwrap();
+    let dirt_tile_batch = graphics::spritebatch::SpriteBatch::new(dirt_tile);
+    let grassy_dirt_tile_batch = graphics::spritebatch::SpriteBatch::new(grassy_dirt_tile);
+
+    
+
+
     AssetHandler {
         player   : graphics::Image::new(ctx, "/Player.png" ).unwrap(),
-        dirt_tile : graphics::Image::new(ctx, "/DirtBlock.png" ).unwrap(),
-        grassy_dirt_tile : graphics::Image::new(ctx, "/GrassyDirtBlock.png").unwrap(),
+        dirt_tile_batch,
+        grassy_dirt_tile_batch,
         background : graphics::Image::new(ctx, "/background.png").unwrap(),
     }
 }

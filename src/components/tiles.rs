@@ -21,14 +21,10 @@ pub fn create_dirt(world : &mut World, position : Point2) -> Entity {
     world.create_entity_unchecked()
         .with(components::Transform { 
             position,
-            scale : Vector2::new(0.25, 0.25) 
+            scale : Vector2::new(0.25, 0.5) 
         })
         .with(Tile)
         .with(Dirt)
-        .with(components::Sprite { image :    {
-                asset_handler.dirt_tile.clone() 
-            }
-        })
         .build()
 }
 
@@ -46,9 +42,5 @@ pub fn create_grassy_dirt(world : &mut World, position : Point2) -> Entity {
         })
         .with(Tile)
         .with(GrassyDirt)
-        .with(components::Sprite { image :    {
-                asset_handler.grassy_dirt_tile.clone() 
-            }
-        })
         .build()
 }

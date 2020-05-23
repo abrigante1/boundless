@@ -20,3 +20,7 @@ pub struct Transform {
 #[derive(Component)]
 #[storage(VecStorage)]
 pub struct Camera {}
+
+#[derive(Component)]
+#[storage(VecStorage)]
+pub struct Culled {}

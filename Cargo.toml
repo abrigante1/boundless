@@ -11,3 +11,6 @@ ggez = "0.5"
 specs = "0.16.1"
 specs-derive = "0.4.1"
 simdnoise = "3.1.5"
+
+[profile.dev]
+opt-level = 3
