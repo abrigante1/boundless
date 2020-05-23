@@ -1,5 +1,3 @@
-mod components;
-mod tiles;
+pub mod tiles;
 
-pub use self::components::*;
 pub use self::tiles::*;
