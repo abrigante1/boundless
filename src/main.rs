@@ -1,4 +1,9 @@
 use amethyst::{
+    ecs::{
+        RunNow,
+        Dispatcher,
+        DispatcherBuilder,
+    },
     core::transform::TransformBundle,
     core::transform::Transform,
     prelude::*,
@@ -19,7 +24,6 @@ use amethyst::{
         RenderingBundle,
         Camera,
         ImageFormat,
-        SpriteRender,
         SpriteSheet,
         SpriteSheetFormat,
         Texture,
@@ -32,24 +36,24 @@ use amethyst::{
 };
 
 mod components;
-pub use components::tiles::*;
+pub use components::*;
 
 mod systems;
 pub use systems::*;
 
-pub struct TileSpritesheet {
-    pub spritesheet : Handle<SpriteSheet>
+mod alias;
+pub use alias::*;
+
+pub struct SpriteSheetManager {
+    pub tiles       : Handle<SpriteSheet>,
+   // pub characters  : Handle<SpriteSheet>,
+   // pub backgrounds : Handle<SpriteSheet>,
 }
 
 struct Game;
 
 impl Game {
     fn run_systems(&mut self, world : &mut World) {
-        use amethyst::ecs::RunNow;
-
-        let mut input = systems::GodCameraSystem{};
-        input.run_now(&world);
-
         world.maintain();
     }
 }
@@ -62,9 +66,12 @@ impl SimpleState for Game {
         // Register Components
         world.register::<Tile>();
         world.register::<Dirt>();
+        world.register::<GrassyDirt>();
 
-        let tile_spritesheet = TileSpritesheet {
-            spritesheet : load_tiles_spritesheet(world),
+        let tile_spritesheet = SpriteSheetManager {
+            tiles       : load_tiles_spritesheet(world),
+           // characters  : load_characters_spritesheet(world),
+           // backgrounds : load_backgrounds_spritesheet(world),
         };
 
         // Insert the Spritesheet Resource
@@ -78,12 +85,15 @@ impl SimpleState for Game {
         };
 
 
-        let world_generator = WorldGenSystem {
+        let mut world_generator = WorldGenSystem {
             world_height : (height as f32 / 16.0) as usize,
             world_width  : (width as f32 / 16.0) as usize,
         };
 
-        world_generator.create_world(world);
+        world_generator.run_now(&mut world);
+
+
+        world.maintain();
     }
 
     fn update(&mut self, data : &mut StateData<'_, GameData<'_, '_>>) -> SimpleTrans {
@@ -131,6 +141,7 @@ fn main() -> amethyst::Result<()> {
 
     let assets_dir = app_root.join("assets");
     let config_dir = app_root.join("config");
+    let bindings_config = app_root.join("config").join("bindings.ron");
     let display_config_path = config_dir.join("display.ron");
 
     let game_data = GameDataBuilder::default()
@@ -143,7 +154,9 @@ fn main() -> amethyst::Result<()> {
                 .with_plugin(RenderFlat2D::default()),
         )?
         .with_bundle(TransformBundle::new())?
-        .with_bundle(InputBundle::<StringBindings>::new())?;
+        .with_bundle(InputBundle::<StringBindings>::new().with_bindings_from_file(bindings_config)?)?
+        .with(systems::GodCameraSystem { reader_id : None }, "god_camera_system", &[]);
+
 
     let mut game = Application::new(assets_dir, Game, game_data)?;
     game.run();
@@ -159,7 +172,7 @@ fn initalize_camera(world: &mut World) {
     };
 
     let mut transform = Transform::default();
-    transform.set_translation_xyz(width * 0.5, height * 0.5, 1.0);
+    transform.set_translation_xyz(0.0, 0.0, 1.0);
 
     let camera = world
         .create_entity()
@@ -186,6 +199,42 @@ fn load_tiles_spritesheet(world: &mut World) -> Handle<SpriteSheet> {
 
     loader.load(
         "tiles/tiles.ron",
+        SpriteSheetFormat(tex_handle),
+        (),
+        &spritesheet_storage,
+    )
+}
+
+fn load_backgrounds_spritesheet(world: &mut World) -> Handle<SpriteSheet> {
+    let loader = world.read_resource::<Loader>();
+    let texture_storage = world.read_resource::<AssetStorage<Texture>>();
+    let spritesheet_storage = world.read_resource::<AssetStorage<SpriteSheet>>();
+    let tex_handle = loader.load(
+        "backgrounds/backgrounds_spritesheet.png",
+        ImageFormat::default(),
+        (),
+        &texture_storage);
+
+    loader.load(
+        "backgrounds/backgrounds.ron",
+        SpriteSheetFormat(tex_handle),
+        (),
+        &spritesheet_storage,
+    )
+}
+
+fn load_characters_spritesheet(world: &mut World) -> Handle<SpriteSheet> {
+    let loader = world.read_resource::<Loader>();
+    let texture_storage = world.read_resource::<AssetStorage<Texture>>();
+    let spritesheet_storage = world.read_resource::<AssetStorage<SpriteSheet>>();
+    let tex_handle = loader.load(
+        "characters/characters_spritesheet.png",
+        ImageFormat::default(),
+        (),
+        &texture_storage);
+
+    loader.load(
+        "characters/characters.ron",
         SpriteSheetFormat(tex_handle),
         (),
         &spritesheet_storage,
