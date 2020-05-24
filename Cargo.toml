@@ -7,9 +7,14 @@ edition = "2018"
 [dependencies]
 amethyst = "0.15.0"
 simdnoise = "3.1.5"
+rand = "0.7"
 
 [features]
 default = ["vulkan"]
 empty = ["amethyst/empty"]
 metal = ["amethyst/metal"]
 vulkan = ["amethyst/vulkan"]
+no-slow-safety-checks = ["amethyst/no-slow-safety-checks"]
+
+[profile.dev]
+opt-level = 3

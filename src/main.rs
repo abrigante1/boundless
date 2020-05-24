@@ -1,11 +1,13 @@
 use amethyst::{
     ecs::{
         RunNow,
-        Dispatcher,
-        DispatcherBuilder,
+        Entity
     },
-    core::transform::TransformBundle,
-    core::transform::Transform,
+    core::transform::{
+        TransformBundle,
+        Transform,
+        Parent
+    },
     prelude::*,
     utils::application_root_dir,
     window::ScreenDimensions,
@@ -25,9 +27,11 @@ use amethyst::{
         Camera,
         ImageFormat,
         SpriteSheet,
+        SpriteRender,
         SpriteSheetFormat,
         Texture,
         ActiveCamera,
+        sprite_visibility::SpriteVisibilitySortingSystem,
     },
     input::{
         InputBundle,
@@ -46,8 +50,8 @@ pub use alias::*;
 
 pub struct SpriteSheetManager {
     pub tiles       : Handle<SpriteSheet>,
-   // pub characters  : Handle<SpriteSheet>,
-   // pub backgrounds : Handle<SpriteSheet>,
+    pub characters  : Handle<SpriteSheet>,
+    pub backgrounds : Handle<SpriteSheet>,
 }
 
 struct Game;
@@ -67,27 +71,30 @@ impl SimpleState for Game {
         world.register::<Tile>();
         world.register::<Dirt>();
         world.register::<GrassyDirt>();
+        world.register::<TreeTrunk>();
+        world.register::<TreeLeaves>();
+        world.register::<Tree>();
 
         let tile_spritesheet = SpriteSheetManager {
             tiles       : load_tiles_spritesheet(world),
-           // characters  : load_characters_spritesheet(world),
-           // backgrounds : load_backgrounds_spritesheet(world),
+            characters  : load_characters_spritesheet(world),
+            backgrounds : load_backgrounds_spritesheet(world),
         };
 
         // Insert the Spritesheet Resource
         world.insert(tile_spritesheet);
 
-        initalize_camera(world);
+        let player     = initalize_player(world, Vector3::new(64.0, 64.0 * 11.5, 0.0), Vector3::new(1.0, 1.0, 1.0));
+        let camera = initalize_camera(world, player);
 
-        let (width, height) = {
-            let dim = world.read_resource::<ScreenDimensions>();
-            (dim.width(), dim.height())
-        };
+        let background = initalize_background(world, Vector3::new(0.0, 0.0, -10.0), Vector3::new(2.0, 2.0, 2.0), camera);
 
+
+        let (width, height) = (256, 32);
 
         let mut world_generator = WorldGenSystem {
-            world_height : (height as f32 / 16.0) as usize,
-            world_width  : (width as f32 / 16.0) as usize,
+            world_height : height as usize,
+            world_width  : width as usize,
         };
 
         world_generator.run_now(&mut world);
@@ -155,7 +162,8 @@ fn main() -> amethyst::Result<()> {
         )?
         .with_bundle(TransformBundle::new())?
         .with_bundle(InputBundle::<StringBindings>::new().with_bindings_from_file(bindings_config)?)?
-        .with(systems::GodCameraSystem { reader_id : None }, "god_camera_system", &[]);
+        .with(systems::GodCameraSystem { reader_id : None }, "god_camera_system", &[])
+        .with(SpriteVisibilitySortingSystem::default(), "visibility_system", &["transform_system"]);
 
 
     let mut game = Application::new(assets_dir, Game, game_data)?;
@@ -164,7 +172,7 @@ fn main() -> amethyst::Result<()> {
     Ok(())
 }
 
-fn initalize_camera(world: &mut World) {
+fn initalize_camera(world: &mut World, parent : Entity) -> Entity {
 
     let (width, height) = {
         let dim = world.read_resource::<ScreenDimensions>();
@@ -176,6 +184,7 @@ fn initalize_camera(world: &mut World) {
 
     let camera = world
         .create_entity()
+        .with(Parent { entity: parent })
         .with(Camera::standard_2d(width, height))
         .with(transform)
         .build();
@@ -185,7 +194,48 @@ fn initalize_camera(world: &mut World) {
     };
 
     world.insert(active_camera);
+
+    camera
 }
+
+fn initalize_player(world : &mut World, position : Vector3, scale : Vector3) -> Entity {
+
+    let spritesheet = (&*world.read_resource::<crate::SpriteSheetManager>()).characters.clone();
+
+    let mut transform = Transform::default();
+    transform.set_translation(position);
+    transform.set_scale(scale);
+
+    world.create_entity_unchecked()
+        .with(transform)
+        .with(Tile)
+        .with(GrassyDirt)
+        .with(SpriteRender {
+            sprite_sheet  : spritesheet,
+            sprite_number : 0,
+        })
+        .build()
+}
+
+fn initalize_background(world : &mut World, position : Vector3, scale : Vector3, parent : Entity) -> Entity {
+
+    let spritesheet = (&*world.read_resource::<crate::SpriteSheetManager>()).backgrounds.clone();
+
+    let mut transform = Transform::default();
+    transform.set_translation(position);
+    transform.set_scale(scale);
+
+    world.create_entity_unchecked()
+        .with(transform)
+        .with(Tile)
+        .with(Parent { entity : parent })
+        .with(SpriteRender {
+            sprite_sheet  : spritesheet,
+            sprite_number : 0,
+        })
+        .build()
+}
+
 
 fn load_tiles_spritesheet(world: &mut World) -> Handle<SpriteSheet> {
     let loader = world.read_resource::<Loader>();

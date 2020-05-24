@@ -37,23 +37,6 @@ impl<'s> System<'s> for GodCameraSystem {
 
     fn run(&mut self, (input, mut input_manager, active_camera, mut transform_storage) : Self::SystemData) {
         
-        /* if input.mouse_button_is_down(MouseButton::Left) {
-
-            println!("Mouse Button Pressed!");
-
-            if let Some((x, y)) = input.mouse_position() {
-
-                // Get the Entity from the Active Camera
-                let entity = active_camera.entity.expect("Active Camera Doesn't Have A Target!");
-
-                // Get the Camera Component from the Storage
-                let transform = transform_storage.get_mut(entity).expect("The Entity Doesn't have a Transform!");
-
-                
-                transform.set_translation_xyz(x, y, 1.0);
-
-            }
-        } */
 
         // Get the Entity from the Active Camera
         let entity = active_camera.entity.expect("Active Camera Doesn't Have A Target!");
