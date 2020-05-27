@@ -174,7 +174,7 @@
             <key>trimMargin</key>
             <uint>1</uint>
             <key>trimMode</key>
-            <enum type="SpriteSettings::TrimMode">Trim</enum>
+            <enum type="SpriteSettings::TrimMode">None</enum>
             <key>tracerTolerance</key>
             <int>200</int>
             <key>heuristicMask</key>
@@ -186,8 +186,10 @@
         </struct>
         <key>individualSpriteSettings</key>
         <map type="IndividualSpriteSettingsMap">
+            <key type="filename">Air.png</key>
             <key type="filename">DirtBlock.png</key>
             <key type="filename">GrassyDirtBlock.png</key>
+            <key type="filename">Target.png</key>
             <key type="filename">TreeTrunk.png</key>
             <struct type="IndividualSpriteSettings">
                 <key>pivotPoint</key>

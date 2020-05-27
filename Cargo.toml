@@ -6,15 +6,18 @@ edition = "2018"
 
 [dependencies]
 amethyst = "0.15.0"
-simdnoise = "3.1.5"
-rand = "0.7"
+glsl-layout = "*"
+derivative = "*"
+simdnoise = "*"
+rand = "*"
+lazy_static = "*"
+failure = "*"
 
 [features]
-default = ["vulkan"]
+default = ["vulkan", "amethyst/tiles"]
 empty = ["amethyst/empty"]
 metal = ["amethyst/metal"]
 vulkan = ["amethyst/vulkan"]
-no-slow-safety-checks = ["amethyst/no-slow-safety-checks"]
 
 [profile.dev]
-opt-level = 3
+opt-level = 3   

@@ -2,53 +2,61 @@
 //  Sprite sheet data for Amethyst Game Engine: https://www.amethyst.rs
 //  This file was created by TexturePacker: https://www.codeandweb.com/texturepacker
 //
-//  $TexturePacker:SmartUpdate:67b5393a43375f4d082a108ead930126:1d44c4f61f56b25f727bd497c330e8ca:c47438cb7b77f1c925b77cf11a4d7d0e$
+//  $TexturePacker:SmartUpdate:a4f6466ab6eb3981c45baf8e02f160b6:4b8097e11eec93fad54ebc8ec1eca881:c47438cb7b77f1c925b77cf11a4d7d0e$
 //
 
 #![enable(implicit_some)]
 List((
-    texture_width: 336,
+    texture_width: 460,
     texture_height: 66,
     sprites: [
         (
-            // 0: DirtBlock.png
-            x: 107,
+            // 0: Air.png
+            x: 131,
             y: 1,
             width: 64,
             height: 64,
             offsets: (0, 0),
         ),
         (
-            // 1: GrassyDirtBlock.png
-            x: 173,
+            // 1: DirtBlock.png
+            x: 197,
             y: 1,
             width: 64,
             height: 64,
             offsets: (0, 0),
         ),
         (
-            // 2: Target.png
-            x: 239,
+            // 2: GrassyDirtBlock.png
+            x: 263,
             y: 1,
             width: 64,
             height: 64,
             offsets: (0, 0),
         ),
         (
-            // 3: TreeTopper.png
+            // 3: Target.png
+            x: 329,
+            y: 1,
+            width: 64,
+            height: 64,
+            offsets: (0, 0),
+        ),
+        (
+            // 4: TreeTopper.png
             x: 1,
             y: 1,
-            width: 104,
+            width: 128,
             height: 64,
             offsets: (0, 0),
         ),
         (
-            // 4: TreeTrunk.png
-            x: 305,
+            // 5: TreeTrunk.png
+            x: 395,
             y: 1,
-            width: 30,
+            width: 64,
             height: 64,
-            offsets: (-1, 0),
+            offsets: (0, 0),
         )
     ]
 ))

@@ -1,4 +1,4 @@
-# Boundless
+# boundless
 
 ## How to run
 
