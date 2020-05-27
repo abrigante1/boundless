@@ -25,6 +25,7 @@ pub fn create_dirt(world : &mut World, position : Point2) -> Entity {
         })
         .with(Tile)
         .with(Dirt)
+        .with(TileSpritesheet{ x : 0.0, y : 0.0})
         .build()
 }
 
@@ -42,5 +43,6 @@ pub fn create_grassy_dirt(world : &mut World, position : Point2) -> Entity {
         })
         .with(Tile)
         .with(GrassyDirt)
+        .with(TileSpritesheet{ x : 64.0, y : 0.0})
         .build()
 }

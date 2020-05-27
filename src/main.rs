@@ -21,6 +21,7 @@ struct AssetHandler {
     player                 : graphics::Image,
     dirt_tile_batch        : graphics::spritebatch::SpriteBatch,
     grassy_dirt_tile_batch : graphics::spritebatch::SpriteBatch,
+    tile_spritesheet       : graphics::spritebatch::SpriteBatch,
     background             : graphics::Image,
 }
 
@@ -35,6 +36,8 @@ impl State {
             world_width : 32 * 5,
             world_height : 32 * 2,
         };
+
+        
 
         world_gen_system.run_now(&world);
 
@@ -194,6 +197,7 @@ fn main() {
     world.register::<components::Dirt>();
     world.register::<components::GrassyDirt>();
     world.register::<components::Culled>();
+    world.register::<components::TileSpritesheet>();
 
     // Create Camera at Origin
     let player_pos = Point2::new(-32.0 * 5.0, 32.0 * 7.0);
@@ -259,16 +263,17 @@ fn register_assets(ctx : &mut Context) -> AssetHandler {
 
     let dirt_tile = graphics::Image::new(ctx, "/DirtBlock.png" ).unwrap();
     let grassy_dirt_tile = graphics::Image::new(ctx, "/GrassyDirtBlock.png" ).unwrap();
+    let spritesheet = graphics::Image::new(ctx, "/tiles_spritesheet.png" ).unwrap();
+
     let dirt_tile_batch = graphics::spritebatch::SpriteBatch::new(dirt_tile);
     let grassy_dirt_tile_batch = graphics::spritebatch::SpriteBatch::new(grassy_dirt_tile);
-
-    
-
+    let tile_spritesheet  = graphics::spritebatch::SpriteBatch::new(spritesheet);
 
     AssetHandler {
         player   : graphics::Image::new(ctx, "/Player.png" ).unwrap(),
         dirt_tile_batch,
         grassy_dirt_tile_batch,
+        tile_spritesheet,
         background : graphics::Image::new(ctx, "/background.png").unwrap(),
     }
 }
