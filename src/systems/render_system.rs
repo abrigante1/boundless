@@ -44,7 +44,7 @@ impl RenderSystem {
         let active_camera    = world.read_resource::<ActiveCamera>();
         let camera_transform = transforms.get(active_camera.entity.unwrap()).unwrap();
 
-        let x_uv_scalar = 1.0 / (64.0 * 2.0);
+        let x_uv_scalar = 1.0 / (64.0 * 3.0);
         let y_uv_scalar = 1.0 / (64.0 * 1.0);
         let uv_width    = x_uv_scalar * 64.0; 
         let uv_height    = y_uv_scalar * 64.0;
@@ -83,7 +83,7 @@ impl RenderSystem {
     }
     
     
-    fn world_to_screen_coords(&mut self, screen_size : Point2, camera_transform : &Transform , point : Point2) -> Point2 {
+    pub fn world_to_screen_coords(&mut self, screen_size : Point2, camera_transform : &Transform , point : Point2) -> Point2 {
 
         let width_scalar  = screen_size.x / (screen_size.x * camera_transform.scale.x);
         let height_scalar = screen_size.y / (screen_size.y * camera_transform.scale.y); 
@@ -101,6 +101,30 @@ impl RenderSystem {
 
         Point2::new(pos.x, pos.y)
     }
+    
+    pub fn sreen_to_world_coords(screen_size : Point2, camera_transform : &Transform , point : Point2) -> Point2 {
+
+        let width_scalar  = screen_size.x / (screen_size.x * camera_transform.scale.x);
+        let height_scalar = screen_size.y / (screen_size.y * camera_transform.scale.y); 
+
+        // Construct Matrixes
+        let world2camera = Matrix3::new(1.0,  0.0, -camera_transform.position.x, 
+                                        0.0, -1.0, camera_transform.position.y,
+                                        0.0,  0.0,  1.0);
+
+        let camera2screen = Matrix3::new(width_scalar, 0.0,  screen_size.x / 2.0, 
+                                         0.0, height_scalar, screen_size.y / 2.0,
+                                         0.0, 0.0,  1.0);
+
+        use math::inverse;
+
+        let matrix = camera2screen * world2camera;
+
+        let pos = matrix.try_inverse().unwrap() * Point3::new(point.x, point.y, 1.0);
+
+        Point2::new(pos.x, pos.y)
+    }
+
 
     
 }

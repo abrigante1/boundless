@@ -11,6 +11,8 @@ mod components;
 mod alias;
 pub use alias::*;
 
+pub type TileMap = Vec<Entity>;
+
 struct InputHandler {
     pos_x : f32,
     pos_y : f32,
@@ -27,22 +29,22 @@ struct AssetHandler {
 
 struct State {
     world : World,
+    world_gen_system : systems::WorldGenSystem,
 }   
 
 impl State {
     fn new( world : World ) -> GameResult<State> {
 
         let mut world_gen_system = systems::WorldGenSystem { 
-            world_width : 32 * 5,
-            world_height : 32 * 2,
+            world_width : 3,
+            world_height : 3,
         };
-
-        
 
         world_gen_system.run_now(&world);
 
         let state = State {
             world,
+            world_gen_system,
         };
 
         Ok(state)
@@ -80,10 +82,39 @@ impl event::EventHandler for State {
         println!("Mouse button pressed: {:?}, x: {}, y: {}", button, x, y);
     }
 
-    fn mouse_button_up_event(&mut self, _ctx: &mut Context, button: input::mouse::MouseButton, x: f32, y: f32) {
+    fn mouse_button_up_event(&mut self, ctx: &mut Context, button: input::mouse::MouseButton, x: f32, y: f32) {
         let mut input_handler = self.world.write_resource::<InputHandler>();
 
         input_handler.mouse_down = false;
+
+        let (w, h) = graphics::drawable_size(ctx);
+
+        
+        // Get the Camera's Transform
+        let transforms       = self.world.read_storage::<components::Transform>();
+        let names            = self.world.read_storage::<components::Named>();
+        let active_camera    = self.world.read_resource::<systems::ActiveCamera>();
+        let camera_transform = transforms.get(active_camera.entity.unwrap()).unwrap();
+
+        let point = systems::RenderSystem::sreen_to_world_coords(Point2::new(w, h), 
+                                                                camera_transform, 
+                                                                Point2::new(x, y));
+
+        println!("world coords: {:?}", (point.x, point.y));
+
+
+        let indx = self.world_gen_system.to_tile_coords(point.x, point.y);
+
+        println!("Index: {}", indx);
+
+        // Get Map
+        let tile_map = self.world.read_resource::<TileMap>();
+
+        let ent = tile_map.get(indx as usize).unwrap();
+
+        let name = names.get(*ent).unwrap();
+
+        println!("Name: {}", name.name);
 
         println!("Mouse button released: {:?}, x: {}, y: {}", button, x, y);
     }
@@ -198,12 +229,13 @@ fn main() {
     world.register::<components::GrassyDirt>();
     world.register::<components::Culled>();
     world.register::<components::TileSpritesheet>();
+    world.register::<components::Named>();
 
     // Create Camera at Origin
     let player_pos = Point2::new(-32.0 * 5.0, 32.0 * 7.0);
     let camera = world.create_entity()
     .with(components::Transform {
-        position : player_pos,
+        position : Point2::new(0.0, 0.0),
         scale    : Vector2::new(1.0, 1.0),
     })
     .with(components::Camera {})
@@ -217,6 +249,10 @@ fn main() {
     world.insert(input_handler);
 
     let asset_handler = register_assets(ctx);
+
+    let tile_map : TileMap = Vec::new();
+
+    world.insert(tile_map);
 
     world.insert(asset_handler);
 

@@ -13,36 +13,67 @@ pub struct Tile;
 
 #[derive(Component)]
 #[storage(VecStorage)]
-pub struct Dirt;
+pub struct Air;
 
-pub fn create_dirt(world : &mut World, position : Point2) -> Entity {
-    let asset_handler = world.write_resource::<crate::AssetHandler>();
-    
-    world.create_entity_unchecked()
+pub fn create_air(
+    entities : &mut Entities,
+    lazy     : &LazyUpdate,
+    position : Point2,
+) -> Entity {
+    lazy
+        .create_entity(entities)
         .with(components::Transform { 
             position,
-            scale : Vector2::new(0.25, 0.5) 
+            scale : Vector2::new(0.25, 0.25) 
         })
         .with(Tile)
         .with(Dirt)
-        .with(TileSpritesheet{ x : 0.0, y : 0.0})
+        .with(Named::new("Air"))
+        .with(TileSpritesheet{ x : 128.0, y : 0.0})
         .build()
 }
 
 #[derive(Component)]
 #[storage(VecStorage)]
+pub struct Dirt;
+
+pub fn create_dirt(
+    entities : &mut Entities,
+    lazy     : &LazyUpdate,
+    position : Point2,
+) -> Entity {
+    lazy
+        .create_entity(entities)
+        .with(components::Transform { 
+            position,
+            scale : Vector2::new(0.25, 0.25) 
+        })
+        .with(Tile)
+        .with(Dirt)
+        .with(Named::new("Dirt"))
+        .with(TileSpritesheet{ x : 0.0, y : 0.0})
+        .build()
+}
+
+
+#[derive(Component)]
+#[storage(VecStorage)]
 pub struct GrassyDirt;
 
-pub fn create_grassy_dirt(world : &mut World, position : Point2) -> Entity {
-    let asset_handler = world.write_resource::<crate::AssetHandler>();
-    
-    world.create_entity_unchecked()
+pub fn create_grassy_dirt(
+    entities : &mut Entities,
+    lazy     : &LazyUpdate,
+    position : Point2,
+) -> Entity {
+    lazy
+        .create_entity(entities)
         .with(components::Transform { 
             position,
             scale : Vector2::new(0.25, 0.25) 
         })
         .with(Tile)
         .with(GrassyDirt)
+        .with(Named::new("Grassy Dirt"))
         .with(TileSpritesheet{ x : 64.0, y : 0.0})
         .build()
 }
