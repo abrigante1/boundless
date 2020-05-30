@@ -36,8 +36,8 @@ impl State {
     fn new( world : World ) -> GameResult<State> {
 
         let mut world_gen_system = systems::WorldGenSystem { 
-            world_width : 3,
-            world_height : 3,
+            world_width : 128,
+            world_height : 128,
         };
 
         world_gen_system.run_now(&world);
@@ -77,22 +77,23 @@ impl event::EventHandler for State {
     fn mouse_button_down_event(&mut self, _ctx: &mut Context, button: input::mouse::MouseButton, x: f32, y: f32) {
         let mut input_handler = self.world.write_resource::<InputHandler>();
 
-        input_handler.mouse_down = true;
+        if button == input::mouse::MouseButton::Middle {
+            input_handler.mouse_down = true;
+        }
 
         println!("Mouse button pressed: {:?}, x: {}, y: {}", button, x, y);
     }
 
     fn mouse_button_up_event(&mut self, ctx: &mut Context, button: input::mouse::MouseButton, x: f32, y: f32) {
-        let mut input_handler = self.world.write_resource::<InputHandler>();
-
-        input_handler.mouse_down = false;
 
         let (w, h) = graphics::drawable_size(ctx);
-
         
         // Get the Camera's Transform
         let transforms       = self.world.read_storage::<components::Transform>();
         let names            = self.world.read_storage::<components::Named>();
+
+        let entities         = self.world.entities();
+        let lazy             = self.world.read_resource::<LazyUpdate>();
         let active_camera    = self.world.read_resource::<systems::ActiveCamera>();
         let camera_transform = transforms.get(active_camera.entity.unwrap()).unwrap();
 
@@ -108,13 +109,32 @@ impl event::EventHandler for State {
         println!("Index: {}", indx);
 
         // Get Map
-        let tile_map = self.world.read_resource::<TileMap>();
+        let mut tile_map = self.world.write_resource::<TileMap>();
 
-        let ent = tile_map.get(indx as usize).unwrap();
+        if let Some(ent) = tile_map.get_mut(indx as usize) {
+            let name = names.get(*ent).unwrap();
+            println!("Name: {}", name.name);
 
-        let name = names.get(*ent).unwrap();
+            if button == input::mouse::MouseButton::Right {
 
-        println!("Name: {}", name.name);
+                let pos = transforms.get(*ent).unwrap().position;
+
+                if name.name == "Dirt" {
+                    entities.delete(*ent).expect("Entity Not Found!");
+                    *ent = components::create_air(&entities, &lazy, pos);
+                } else if name.name == "Grassy Dirt" {
+                    entities.delete(*ent).expect("Entity Not Found!");
+                    *ent = components::create_air(&entities, &lazy, pos);
+                }
+
+            }
+
+        }
+
+        let mut input_handler = self.world.write_resource::<InputHandler>();
+        if button == input::mouse::MouseButton::Middle {
+            input_handler.mouse_down = false;
+        }
 
         println!("Mouse button released: {:?}, x: {}, y: {}", button, x, y);
     }

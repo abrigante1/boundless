@@ -44,10 +44,7 @@ impl RenderSystem {
         let active_camera    = world.read_resource::<ActiveCamera>();
         let camera_transform = transforms.get(active_camera.entity.unwrap()).unwrap();
 
-        let x_uv_scalar = 1.0 / (64.0 * 3.0);
-        let y_uv_scalar = 1.0 / (64.0 * 1.0);
-        let uv_width    = x_uv_scalar * 64.0; 
-        let uv_height    = y_uv_scalar * 64.0;
+        let spritesheet_rect = graphics::Rect::new(0.0, 0.0, 64.0 * 4.0, 64.0 * 1.0);
 
         for (transform, sprite, _) in (&transforms, &sprites, !&culled).join() {
 
@@ -68,7 +65,7 @@ impl RenderSystem {
             let screen_pos = self.world_to_screen_coords(Point2::new(w, h), camera_transform, transform.position);
 
             let draw_params = graphics::DrawParam::new()
-                .src(graphics::Rect::new(x_uv_scalar * x, y_uv_scalar * y, uv_width, uv_height))
+                .src(graphics::Rect::fraction(*x, *y, 64.0, 64.0, &spritesheet_rect))
                 .offset(Point2::new(0.5, 0.5)) // Moves origin to center of image
                 .scale(Vector2::new(transform.scale.x  * (1.0/camera_transform.scale.x), transform.scale.y * (1.0/camera_transform.scale.y)))
                 .dest(screen_pos);

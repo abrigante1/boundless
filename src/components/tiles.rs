@@ -16,7 +16,7 @@ pub struct Tile;
 pub struct Air;
 
 pub fn create_air(
-    entities : &mut Entities,
+    entities : &Entities,
     lazy     : &LazyUpdate,
     position : Point2,
 ) -> Entity {
@@ -38,7 +38,7 @@ pub fn create_air(
 pub struct Dirt;
 
 pub fn create_dirt(
-    entities : &mut Entities,
+    entities : &Entities,
     lazy     : &LazyUpdate,
     position : Point2,
 ) -> Entity {
@@ -61,7 +61,7 @@ pub fn create_dirt(
 pub struct GrassyDirt;
 
 pub fn create_grassy_dirt(
-    entities : &mut Entities,
+    entities : &Entities,
     lazy     : &LazyUpdate,
     position : Point2,
 ) -> Entity {

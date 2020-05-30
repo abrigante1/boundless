@@ -39,6 +39,10 @@ impl WorldGenSystem {
         let tile_y1 = (y + tile_center_y) as f32; 
         let tile_y  = (tile_y1 / scaled_size as f32) as usize;
 
+        if tile_x > self.world_width || tile_y > self.world_height {
+            return 0;
+        }
+
 
         println!("tile coords1: {:?} -- tile coords: {:?}", (tile_x1, tile_y1), (tile_x, tile_y));
 
@@ -72,14 +76,11 @@ impl<'s> System<'s> for WorldGenSystem {
                     let ent : Entity;
 
                     if y < top_tile {
-                       ent = components::create_dirt(&mut entities, &mut lazy, Point2::new(x_pos, y_pos));
-                       println!("Dirt Tile Stored At: {}", tile_map.len());
+                       ent = components::create_dirt(&entities, &lazy, Point2::new(x_pos, y_pos));
                     } else if y == top_tile {
-                        ent = components::create_grassy_dirt(&mut entities, &mut lazy, Point2::new(x_pos, y_pos));
-                        println!("Grass Tile Stored At: {}", tile_map.len());
+                        ent = components::create_grassy_dirt(&entities, &lazy, Point2::new(x_pos, y_pos));
                     } else {
-                        ent = components::create_air(&mut entities, &mut lazy, Point2::new(x_pos, y_pos));
-                        println!("Air Tile Stored At: {}", tile_map.len());
+                        ent = components::create_air(&entities, &lazy, Point2::new(x_pos, y_pos));
                     }
 
                     tile_map.push(ent);
