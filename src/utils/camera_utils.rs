@@ -1,5 +1,4 @@
 use ggez::nalgebra as math;
-use specs::Entity;
 use crate::components;
 
 pub fn world_to_camera( camera_transform : &components::Transform ) -> math::Matrix3::<f32> {

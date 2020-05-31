@@ -58,7 +58,8 @@ pub struct Transform {
 
 impl Transform {
     
-    pub fn get_rect(&self, sprite : &Sprite ) -> Rect {
+    #[allow(dead_code)]
+    pub fn get_rect_from_sprite(&self, sprite : &Sprite ) -> Rect {
         let mut rect = Rect::new(0.0, 0.0, sprite.width as f32, sprite.height as f32);
         rect.scale(self.scale.x, self.scale.y);
         rect.translate(math::Vector2::new(self.position.x - (rect.w / 2.0), self.position.y - (rect.h / 2.0)));

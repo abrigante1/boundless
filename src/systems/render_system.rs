@@ -1,4 +1,4 @@
-use specs::{ReadStorage, System, Join, Entities, World, WorldExt};
+use specs::{Join, World, WorldExt};
 use ggez::{
     graphics,
 };

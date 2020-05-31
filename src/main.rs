@@ -90,8 +90,6 @@ fn main() {
     world.register::<components::Camera>();
     world.register::<components::Culled>();
 
-    let (w, h) = graphics::drawable_size(ctx);
-
     // Build Entity
     world
         .create_entity()
