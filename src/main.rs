@@ -278,7 +278,7 @@ fn main() {
 
     world.insert(systems::ScreenDimensions { x: 0.0, y: 0.0 });
     
-    create_background(&mut world, player_pos);
+    create_background(&mut world, Point2::new(player_pos.x, player_pos.y + 1000.0));
     create_player(&mut world, player_pos);
 
     let state = &mut State::new(world).unwrap();
@@ -306,7 +306,7 @@ fn create_background(world : &mut World, position : Point2) {
     world.create_entity_unchecked()
         .with(components::Transform {
             position : position, 
-            scale : Vector2::new(1.5, 1.5),
+            scale : Vector2::new(5.0, 5.0),
         })
         .with(components::Sprite { image :    {
             asset_handler.background.clone() 
