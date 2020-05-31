@@ -1,5 +1,5 @@
 [package]
-name = "boundless"
+name = "boundless-production"
 version = "0.1.0"
 authors = ["Anthony Brigante <anthonypbrigante@gmail.com>"]
 edition = "2018"
