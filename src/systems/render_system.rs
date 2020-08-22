@@ -72,7 +72,7 @@ impl RenderSystem {
 
             asset_handler.tile_spritesheet.add(draw_params);            
         }
-        graphics::draw(ctx, &asset_handler.tile_spritesheet, graphics::DrawParam::new());
+        graphics::draw(ctx, &asset_handler.tile_spritesheet, graphics::DrawParam::new()).unwrap();
         asset_handler.tile_spritesheet.clear();
 
 
