@@ -13,6 +13,7 @@ const TILE_SCALE : f32 = 0.25;
 const TILE_SIZE : f32 = 64.0;
 
 impl WorldGenSystem {
+    /// Takes a tile index co-ordinate and converts to 'world' (pixel-based) co-ordinate.
     fn to_world_coords(&self, x : usize, y : usize) -> (f32, f32) {
         let scaled_size = TILE_SIZE * TILE_SCALE;
         let center = scaled_size * 0.5;
@@ -25,7 +26,8 @@ impl WorldGenSystem {
          bot_right + ((y as f32 * scaled_size) + center))
     }
 
-    pub fn to_tile_coords(&self, x : f32, y : f32) -> (usize) {
+    /// Takes a 'world' (pixel-based) position and converts into a 1d tile index (starting from bottom left and going up).
+    pub fn to_tile_coords(&self, x : f32, y : f32) -> usize {
         let scaled_size = TILE_SIZE * TILE_SCALE;
         let center = scaled_size * 0.5;
 
