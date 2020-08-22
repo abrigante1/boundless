@@ -79,7 +79,7 @@ impl RenderSystem {
         graphics::present(ctx).expect("Failed to present!");
     }
     
-    
+    /// Take in-game tile position and convert into pixel location within game window.
     pub fn world_to_screen_coords(&mut self, screen_size : Point2, camera_transform : &Transform , point : Point2) -> Point2 {
 
         let width_scalar  = screen_size.x / (screen_size.x * camera_transform.scale.x);
@@ -99,6 +99,7 @@ impl RenderSystem {
         Point2::new(pos.x, pos.y)
     }
     
+    /// Take pixel location in game window and convert to in-game tile position.
     pub fn screen_to_world_coords(screen_size : Point2, camera_transform : &Transform , point : Point2) -> Point2 {
 
         let width_scalar  = screen_size.x / (screen_size.x * camera_transform.scale.x);

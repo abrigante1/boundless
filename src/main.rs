@@ -245,6 +245,7 @@ fn main() {
     world.register::<components::Sprite>();
     world.register::<components::Camera>();
     world.register::<components::Tile>();
+    world.register::<components::Air>();
     world.register::<components::Dirt>();
     world.register::<components::GrassyDirt>();
     world.register::<components::Culled>();

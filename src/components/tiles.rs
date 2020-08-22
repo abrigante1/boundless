@@ -27,7 +27,7 @@ pub fn create_air(
             scale : Vector2::new(0.25, 0.25) 
         })
         .with(Tile)
-        .with(Dirt)
+        .with(Air)
         .with(Named::new("Air"))
         .with(TileSpritesheet{ x : 128.0, y : 0.0})
         .build()
