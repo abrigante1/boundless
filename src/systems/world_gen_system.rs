@@ -41,7 +41,7 @@ impl WorldGenSystem {
         let tile_y1 = (y + tile_center_y) as f32; 
         let tile_y  = (tile_y1 / scaled_size as f32) as usize;
 
-        if tile_x > self.world_width || tile_y > self.world_height {
+        if tile_x > self.world_width || tile_y > self.world_height || tile_x1 < 0.0 {
             return 0;
         }
 
