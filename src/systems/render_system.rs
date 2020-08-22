@@ -99,7 +99,7 @@ impl RenderSystem {
         Point2::new(pos.x, pos.y)
     }
     
-    pub fn sreen_to_world_coords(screen_size : Point2, camera_transform : &Transform , point : Point2) -> Point2 {
+    pub fn screen_to_world_coords(screen_size : Point2, camera_transform : &Transform , point : Point2) -> Point2 {
 
         let width_scalar  = screen_size.x / (screen_size.x * camera_transform.scale.x);
         let height_scalar = screen_size.y / (screen_size.y * camera_transform.scale.y); 

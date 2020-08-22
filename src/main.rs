@@ -97,7 +97,7 @@ impl event::EventHandler for State {
         let active_camera    = self.world.read_resource::<systems::ActiveCamera>();
         let camera_transform = transforms.get(active_camera.entity.unwrap()).unwrap();
 
-        let point = systems::RenderSystem::sreen_to_world_coords(Point2::new(w, h), 
+        let point = systems::RenderSystem::screen_to_world_coords(Point2::new(w, h), 
                                                                 camera_transform, 
                                                                 Point2::new(x, y));
 
