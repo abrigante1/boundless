@@ -26,6 +26,7 @@ pub struct RenderSystem {
 
 impl RenderSystem {
     
+    /// Renders entire frame based on all world information.
      pub fn draw(&mut self, ctx : &mut ggez::Context, world: &World) {
 
         graphics::clear(ctx, [0.1, 0.2, 0.3, 1.0].into());
@@ -72,14 +73,14 @@ impl RenderSystem {
 
             asset_handler.tile_spritesheet.add(draw_params);            
         }
-        graphics::draw(ctx, &asset_handler.tile_spritesheet, graphics::DrawParam::new());
+        graphics::draw(ctx, &asset_handler.tile_spritesheet, graphics::DrawParam::new()).unwrap();
         asset_handler.tile_spritesheet.clear();
 
 
         graphics::present(ctx).expect("Failed to present!");
     }
     
-    
+    /// Take in-game position (pixels) and convert into pixel location within game window.
     pub fn world_to_screen_coords(&mut self, screen_size : Point2, camera_transform : &Transform , point : Point2) -> Point2 {
 
         let width_scalar  = screen_size.x / (screen_size.x * camera_transform.scale.x);
@@ -99,7 +100,8 @@ impl RenderSystem {
         Point2::new(pos.x, pos.y)
     }
     
-    pub fn sreen_to_world_coords(screen_size : Point2, camera_transform : &Transform , point : Point2) -> Point2 {
+    /// Take pixel location in game window and convert to in-game position (pixels).
+    pub fn screen_to_world_coords(screen_size : Point2, camera_transform : &Transform , point : Point2) -> Point2 {
 
         let width_scalar  = screen_size.x / (screen_size.x * camera_transform.scale.x);
         let height_scalar = screen_size.y / (screen_size.y * camera_transform.scale.y); 
